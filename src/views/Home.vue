@@ -24,7 +24,7 @@ export default {
   components: { PostList, Spinner, TagCloud },
 
   setup() {
-    const { posts, error, load } = getPosts('http://localhost:3000/posts')
+    const { posts, error, load } = getPosts()
 
     load()
     

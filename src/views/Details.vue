@@ -8,6 +8,7 @@
       :key="tag">
       #{{ tag }}
     </span>
+    <button class="delete-button" @click="handleDelete">Delete</button>
   </div>
   <div v-else>
     <Spinner />
@@ -18,38 +19,54 @@
 <script>
 import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
+import { projectFirestore } from "@/firebase/config";
+
 import getPost from "@/composables/getPost";
 import Spinner from "@/components/Spinner.vue";
 import TagCloud from "@/components/TagCloud.vue";
 
 export default {
-  props: [ 'id', 'posts' ],
+  props: [ 'id' ],
   components: { Spinner, TagCloud },
 
   setup(props) {
     const route = useRoute()
     const router = useRouter()
 
-    const { post, error, load } = getPost('http://localhost:3000/posts/' + props.id)
+    const handleDelete = async () => {
+      await projectFirestore.collection('posts')
+        .doc(props.id)
+        .delete()
+
+      router.push({ name: 'Home'})
+    }
+
+    const { post, error, load } = getPost(route.params.id)
 
     load()
 
-    return { post, error, router }
+    return { post, error, router, handleDelete }
   }
 }
 </script>
 
 <style>
-.back-btn {
-  margin: 20px 0 0;
-  background-color: transparent;
-  color: black;
-  text-transform: none;
-  font-weight: 400;
-  text-align: left;
-  padding: 5px 10px;
-  width: auto;
-}
+  .delete-button {
+    margin: 25px 0;
+    width: auto;
+    background-color: red;
+  }
+
+  .back-btn {
+    margin: 20px 0 0;
+    background-color: transparent;
+    color: black;
+    text-transform: none;
+    font-weight: 400;
+    text-align: left;
+    padding: 5px 10px;
+    width: auto;
+  }
   .single-post {
     margin: 70px auto;
   }
@@ -59,7 +76,7 @@ export default {
     position: relative;
     z-index: 1;
     display: block;
-    width: 100%;
+    width: 75%;
     color: white;
   }
 
@@ -69,7 +86,7 @@ export default {
     top: 0;
     left: 0;
     height: 100%;
-    width: 50%;
+    width: 100%;
     display: block;
     background: darkblue;
     z-index: -1;
